@@ -33,10 +33,10 @@ get_random_word(Number, Lines, Random_word) :-
     nth1(N, Lines, Random_word).
 
 get_all_words(Number,Lines,N) :-
-    (4 = Number -> open('4_letters.txt',read, Str),random(0, 972, N),write('1');
-    5 = Number -> open('5_letters.txt',read, Str),random(0, 2193, N),write('2');
-    6 = Number -> open('6_letters.txt',read, Str),random(0, 3042, N),write('3');
-    7 = Number -> open('7_letters.txt',read, Str),random(0, 4101, N),write('4'))->
+    (4 = Number -> open('4_letters.txt',read, Str),random(0, 972, N);
+    5 = Number -> open('5_letters.txt',read, Str),random(0, 2193, N);
+    6 = Number -> open('6_letters.txt',read, Str),random(0, 3042, N);
+    7 = Number -> open('7_letters.txt',read, Str),random(0, 4101, N))->
     read_file(Str,Lines),
     close(Str),
     nl.
