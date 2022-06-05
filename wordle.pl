@@ -13,20 +13,22 @@ main :-
 
 game_setup(Number) :-
   	get_random_word(Number,Lines, Random_word),
-    write(Random_word),
     play_game(Number, 6, Random_word).
 
 
 play_game(Number, Tries, Random_word) :-
+  write("Faltam "),write(Tries),write(" chances!"),
+  nl,
   write('Digite a palavra que deseja adivinhar: '),
   read(Guess),
   atom_chars(Guess, Guess_char_list),
-  Tries_left is Tries - 1,  
-  (Tries_left is 0 -> end_game();
-  nl, play_game(Number, Tries_left, Random_word)).
+  lenght_word(Guess_char_list,Lenght),
+  Number \== Lenght -> write('O tamanho da palavra que você escreveu não corresponde com o tamanho da palavra aleatória que está jogando!'),nl,play_game(Number,Tries,Random_word);
+  Tries_left is Tries - 1,  (Tries_left is 0 -> end_game(); nl, play_game(Number, Tries_left, Random_word)).
 
-lenght_word_check(Number, Guess_char_list) :-
-	write(" ").
+
+lenght_word([],Lenght) :- Lenght is 0. 
+lenght_word([H|T], Lenght) :- lenght_word(T,L),Lenght is L+1.
 	
 get_random_word(Number, Lines, Random_word) :-
     get_all_words(Number,Lines,N),
@@ -50,6 +52,7 @@ read_file(Stream,[X|L]) :-
     read_file(Stream,L).
 
 end_game :-
+    nl,
     write("O jogo terminou! Deseja jogar novamente? (sim/nao) "),
    	read(Option),
     (Option = 'sim' ->  main();
