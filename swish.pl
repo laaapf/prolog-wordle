@@ -84,7 +84,7 @@ read_file(Stream,[X|L]) :-
 %verificando se o usuario quer continuar o jogo ou finalizar o programa
 end_game :-
     nl,
-    write("O jogo terminou! Deseja jogar novamente? (Digite "sim". ou "nao".) "),
+    write('O jogo terminou! Deseja jogar novamente? (Digite "sim". ou "nao".) '),
    	read(Option),
     (Option = "sim" ->  nl,main();
     (Option = "nao" -> write('Terminando o jogo!');

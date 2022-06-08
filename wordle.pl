@@ -1,11 +1,8 @@
-% Student exercise profile
-:- set_prolog_flag(occurs_check, error).        % disallow cyclic terms
-:- set_prolog_stack(global, limit(8 000 000)).  % limit term space (8Mb)
-:- set_prolog_stack(local,  limit(2 000 000)).  % limit environment space
+
 
 %verifica se o numero digitado pelo usuario eh valido
 main :-
-    print("Digite o tamanho da palavra que deseja jogar de 4 a 7 letras (EXEMPLO: 4.): "),
+    write("Digite o tamanho da palavra que deseja jogar de 4 a 7 letras (EXEMPLO: 4.): "),
     read(Number),
 	(integer(Number),between(Number) -> game_setup(Number);
     print("Não eh um numero valido!"),
@@ -22,7 +19,7 @@ game_setup(Number) :-
 %pega a entrada do usuario, verifica se a entrada eh valida, se for, continua o jogo, senao, uma palavra valida deve ser digitada novamente
 play_game(Number, Tries, Random_word, Lines) :-
   write("Faltam "),write(Tries),write(" chances!"),
-  get_guess(Guess_aux,Guess,Guess_char_list),
+  get_guess(_Guess_aux,Guess,Guess_char_list),
   lenght_word(Guess_char_list,Lenght),
   check_if_guess_is_valid(Number,Lenght,Lines,Guess) -> 
   Tries_left is Tries - 1,  (Tries_left is 0 -> end_game();nl, play_game(Number, Tries_left, Random_word, Lines));
@@ -80,7 +77,7 @@ read_file(Stream,[X|L]) :-
 %verificando se o usuario quer continuar o jogo ou finalizar o programa
 end_game :-
     nl,
-    write("O jogo terminou! Deseja jogar novamente? (Digite "sim". ou "nao".) "),
+    write('O jogo terminou! Deseja jogar novamente? (Digite "sim". ou "nao".) '),
    	read(Option),
     (Option = "sim" ->  nl,main();
     (Option = "nao" -> write('Terminando o jogo!');
