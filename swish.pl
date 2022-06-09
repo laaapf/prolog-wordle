@@ -24,11 +24,24 @@ game_setup(Number) :-
 %pega a entrada do usuario, verifica se a entrada eh valida, se for, continua o jogo, senao, uma palavra valida deve ser digitada novamente
 play_game(Number, Tries, Random_word, Lines) :-
   write("Faltam "),write(Tries),write(" chances!"),
-  get_guess(Guess_aux,Guess,Guess_char_list),
+  get_guess(_Guess_aux,Guess,Guess_char_list),
   lenght_word(Guess_char_list,Lenght),
   check_if_guess_is_valid(Number,Lenght,Lines,Guess) -> 
-  Tries_left is Tries - 1,  (Tries_left is 0 -> end_game();nl, play_game(Number, Tries_left, Random_word, Lines));
+  check_guess(Guess_char_list,Guess,Random_word),Tries_left is Tries - 1,  (Tries_left is 0 -> end_game();nl, play_game(Number, Tries_left, Random_word, Lines));
   write("A palavra que foi digitada eh invalida ou seu tamanho nao corresponde com o tamanho da palavra aleatoria que esta jogando!"),nl,play_game(Number,Tries,Random_word,Lines).
+
+check_guess(Guess_char_list,_Guess,Random_word) :-
+    atom_chars(Random_word, Random_word_char_list),
+    Guess_char_list = Random_word_char_list -> write(Random_word_char_list),write("Voce ganhou! A palavra eh "),write(Random_word),end_game();
+    atom_chars(Random_word, Random_word_char_list),check_correct_positions(Guess_char_list,Random_word_char_list,1).
+
+check_correct_positions([],[],_Pos):-
+    true.
+check_correct_positions([HG|TG],[HR|TR],Pos) :-
+    %write(TG),nl,
+    %write(TR),
+    HG = HR -> (nl,write('A letra "'),write(HG),write('" esta correta na posicao '),write(Pos),add_number(Pos,P),check_correct_positions(TG,TR,P));
+    add_number(Pos,P),check_correct_positions(TG,TR,P).
 
 %lendo a entrada do usuario
 get_guess(Guess_aux,Guess,Guess_char_list) :-
@@ -40,10 +53,12 @@ get_guess(Guess_aux,Guess,Guess_char_list) :-
   downcase_atom(Guess_aux,Guess),
   atom_chars(Guess, Guess_char_list).
 
+add_number(N, Number) :-
+    Number is N + 1.
 
 %verifica o tamanho de uma palavra
 lenght_word([],Lenght) :- Lenght is 0. 
-lenght_word([H|T], Lenght) :- lenght_word(T,L),Lenght is L+1.
+lenght_word([_H|T], Lenght) :- lenght_word(T,L),Lenght is L+1.
 
 %resgata uma palavra aleatoria de acordo com o arquivo correspondente
 get_random_word(Number, Lines, Random_word) :-
