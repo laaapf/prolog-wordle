@@ -13,28 +13,29 @@ main :-
 game_setup(Number) :-
   	get_random_word(Number,Lines, Random_word_aux),
     downcase_atom(Random_word_aux,Random_word),
+    atom_chars(Random_word, Random_word_char_list),
+    nl,
     write(Random_word),
-    play_game(Number, 6, Random_word, Lines).
+    nl,
+    play_game(Number, 6, Random_word, Lines,Random_word_char_list).
 
 %pega a entrada do usuario, verifica se a entrada eh valida, se for, continua o jogo, senao, uma palavra valida deve ser digitada novamente
-play_game(Number, Tries, Random_word, Lines) :-
+play_game(Number, Tries, Random_word, Lines,Random_word_char_list) :-
   write("Faltam "),write(Tries),write(" chances!"),
+  nl,
   get_guess(_Guess_aux,Guess,Guess_char_list),
   lenght_word(Guess_char_list,Lenght),
   check_if_guess_is_valid(Number,Lenght,Lines,Guess) -> 
-  check_guess(Guess_char_list,Guess,Random_word),Tries_left is Tries - 1,  (Tries_left is 0 -> end_game();nl, play_game(Number, Tries_left, Random_word, Lines));
-  write("A palavra que foi digitada eh invalida ou seu tamanho nao corresponde com o tamanho da palavra aleatoria que esta jogando!"),nl,play_game(Number,Tries,Random_word,Lines).
+  check_guess(Guess_char_list,Guess,Random_word,Random_word_char_list),Tries_left is Tries - 1,  (Tries_left is 0 -> end_game();nl, play_game(Number, Tries_left, Random_word, Lines,Random_word_char_list));
+  write("A palavra que foi digitada eh invalida ou seu tamanho nao corresponde com o tamanho da palavra aleatoria que esta jogando!"),nl,play_game(Number,Tries,Random_word,Lines,Random_word_char_list).
 
-check_guess(Guess_char_list,_Guess,Random_word) :-
-    atom_chars(Random_word, Random_word_char_list),
-    Guess_char_list = Random_word_char_list -> write(Random_word_char_list),write("Voce ganhou! A palavra eh "),write(Random_word),end_game();
-    atom_chars(Random_word, Random_word_char_list),check_correct_positions(Guess_char_list,Random_word_char_list,1).
+check_guess(Guess_char_list,_Guess,Random_word,Random_word_char_list) :-
+    Guess_char_list = Random_word_char_list -> write('Voce ganhou! A palavra eh "'),write(Random_word),write('"!'),end_game();
+    check_correct_positions(Guess_char_list,Random_word_char_list,1).
 
 check_correct_positions([],[],_Pos):-
     true.
 check_correct_positions([HG|TG],[HR|TR],Pos) :-
-    %write(TG),nl,
-    %write(TR),
     HG = HR -> (nl,write('A letra "'),write(HG),write('" esta correta na posicao '),write(Pos),add_number(Pos,P),check_correct_positions(TG,TR,P));
     add_number(Pos,P),check_correct_positions(TG,TR,P).
 
@@ -47,7 +48,7 @@ get_guess(_Guess_aux,Guess,Guess_char_list) :-
   downcase_atom(Guess_aux,Guess),
   atom_chars(Guess, Guess_char_list).
 
-
+%somando 1 a um numero
 add_number(N, Number) :-
     Number is N + 1.
 
@@ -97,7 +98,7 @@ end_game :-
     write('O jogo terminou! Deseja jogar novamente? (Digite "sim". ou "nao".) '),
    	read(Option),
     (Option = "sim" ->  nl,main();
-    (Option = "nao" -> write('Terminando o jogo!');
+    (Option = "nao" -> write('Terminando o jogo!'),halt(0);
     write("Opcao invalida!"),
     nl,
     end_game())).
