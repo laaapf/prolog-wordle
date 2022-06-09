@@ -29,14 +29,16 @@ play_game(Number, Tries, Random_word, Lines,Random_word_char_list) :-
 
 check_char_guess_positions(Guess_char_list,_Guess,Random_word,Random_word_char_list) :-
     Guess_char_list = Random_word_char_list -> write('Voce ganhou! A palavra eh "'),write(Random_word),write('"!'),end_game();
-    check_correct_positions(Guess_char_list,Random_word_char_list,1).
-    
+    check_correct_positions(Guess_char_list,Random_word_char_list,1,Chars_left),
+    check_wrong_positions(Guess_char_list,Random_word_char_list,Chars_left).
 
-check_correct_positions([],[],_Pos):-
+check_wrong_positions(Guess_char_list,Random_word_char_list,Chars_left):-
     true.
-check_correct_positions([HG|TG],[HR|TR],Pos) :-
-    HG = HR -> (nl,write('A letra "'),write(HG),write('" esta correta na posicao '),write(Pos),add_number(Pos,P),check_correct_positions(TG,TR,P));
-    add_number(Pos,P),check_correct_positions(TG,TR,P).
+
+check_correct_positions([],[],_Pos,Chars_left):-!.
+check_correct_positions([HG|TG],[HR|TR],Pos,Chars_left) :-
+    HG = HR -> (nl,write('A letra "'),write(HG),write('" esta correta na posicao '),write(Pos),add_number(Pos,P),check_correct_positions(TG,TR,P,Chars_left));
+    add_number(Pos,P),check_correct_positions(TG,TR,P,Chars_left).
 
 %lendo a entrada do usuario
 get_guess(_Guess_aux,Guess,Guess_char_list) :-

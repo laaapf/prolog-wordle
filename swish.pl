@@ -3,14 +3,16 @@
 :- set_prolog_stack(global, limit(8 000 000)).  % limit term space (8Mb)
 :- set_prolog_stack(local,  limit(2 000 000)).  % limit environment space
 
+
 %verifica se o numero digitado pelo usuario eh valido
 main :-
-    print("Digite o tamanho da palavra que deseja jogar de 4 a 7 letras (EXEMPLO: 4.): "),
+    read_number(Number) -> game_setup(Number);
+    print("Nao eh um numero valido!"),nl,main().
+
+read_number(Number) :-
+    write("Digite o tamanho da palavra que deseja jogar de 4 a 7 letras (EXEMPLO: 4.): "),
     read(Number),
-	(integer(Number),between(Number) -> game_setup(Number);
-    print("Nao eh um numero valido!"),
-    nl,
-    main()).
+	integer(Number),between(Number).
 
 %setup para iniciar o jogo
 game_setup(Number) :-
@@ -19,40 +21,40 @@ game_setup(Number) :-
     Lines = ["teta","bata","bola"],
     %downcase_atom(Random_word_aux,Random_word),
     write(Random_word),
-    play_game(Number, 6, Random_word, Lines).
+    play_game(Number, 6, Random_word, Lines,Random_word_char_list).
 
 %pega a entrada do usuario, verifica se a entrada eh valida, se for, continua o jogo, senao, uma palavra valida deve ser digitada novamente
-play_game(Number, Tries, Random_word, Lines) :-
-  write("Faltam "),write(Tries),write(" chances!"),
+play_game(Number, Tries, Random_word, Lines,Random_word_char_list) :-
+  write("Faltam "),write(Tries),write(" chances!"),nl,
   get_guess(_Guess_aux,Guess,Guess_char_list),
   lenght_word(Guess_char_list,Lenght),
   check_if_guess_is_valid(Number,Lenght,Lines,Guess) -> 
-  check_guess(Guess_char_list,Guess,Random_word),Tries_left is Tries - 1,  (Tries_left is 0 -> end_game();nl, play_game(Number, Tries_left, Random_word, Lines));
-  write("A palavra que foi digitada eh invalida ou seu tamanho nao corresponde com o tamanho da palavra aleatoria que esta jogando!"),nl,play_game(Number,Tries,Random_word,Lines).
+  check_char_guess_positions(Guess_char_list,Guess,Random_word,Random_word_char_list),Tries_left is Tries - 1,  (Tries_left is 0 -> end_game();nl, play_game(Number, Tries_left, Random_word, Lines,Random_word_char_list));
+  write("A palavra que foi digitada eh invalida ou seu tamanho nao corresponde com o tamanho da palavra aleatoria que esta jogando!"),nl,play_game(Number,Tries,Random_word,Lines,Random_word_char_list).
 
-check_guess(Guess_char_list,_Guess,Random_word) :-
-    atom_chars(Random_word, Random_word_char_list),
-    Guess_char_list = Random_word_char_list -> write(Random_word_char_list),write("Voce ganhou! A palavra eh "),write(Random_word),end_game();
-    atom_chars(Random_word, Random_word_char_list),check_correct_positions(Guess_char_list,Random_word_char_list,1).
+check_char_guess_positions(Guess_char_list,_Guess,Random_word,Random_word_char_list) :-
+    Guess_char_list = Random_word_char_list -> write('Voce ganhou! A palavra eh "'),write(Random_word),write('"!'),end_game();
+    check_correct_positions(Guess_char_list,Random_word_char_list,1,Chars_left),
+    check_wrong_positions(Guess_char_list,Random_word_char_list,Chars_left).
 
-check_correct_positions([],[],_Pos):-
+check_wrong_positions(Guess_char_list,Random_word_char_list,Chars_left):-
     true.
-check_correct_positions([HG|TG],[HR|TR],Pos) :-
-    %write(TG),nl,
-    %write(TR),
-    HG = HR -> (nl,write('A letra "'),write(HG),write('" esta correta na posicao '),write(Pos),add_number(Pos,P),check_correct_positions(TG,TR,P));
-    add_number(Pos,P),check_correct_positions(TG,TR,P).
+
+check_correct_positions([],[],_Pos,Chars_left):-!.
+check_correct_positions([HG|TG],[HR|TR],Pos,Chars_left) :-
+    HG = HR -> (nl,write('A letra "'),write(HG),write('" esta correta na posicao '),write(Pos),add_number(Pos,P),check_correct_positions(TG,TR,P,Chars_left));
+    add_number(Pos,P),check_correct_positions(TG,TR,P,Chars_left).
 
 %lendo a entrada do usuario
-get_guess(Guess_aux,Guess,Guess_char_list) :-
+get_guess(_Guess_aux,Guess,Guess_char_list) :-
   nl,
   write('Digite a palavra que deseja adivinhar entre aspas com um ponto no final(EXEMPLO: "teste".): '),
   read(Guess_aux),
-  write(Guess_aux),
   nl,
   downcase_atom(Guess_aux,Guess),
   atom_chars(Guess, Guess_char_list).
 
+%somando 1 a um numero
 add_number(N, Number) :-
     Number is N + 1.
 
@@ -72,7 +74,6 @@ get_all_words(Number,Lines,N) :-
     6 = Number -> open('6_letters.txt',read, Str),random(0, 3042, N);
     7 = Number -> open('7_letters.txt',read, Str),random(0, 4101, N))->
     read_file(Str,Lines),
-    write(Str),
     close(Str),
     nl.
 
@@ -96,13 +97,14 @@ read_file(Stream,[X|L]) :-
     read(Stream,X),
     read_file(Stream,L).
 
+
 %verificando se o usuario quer continuar o jogo ou finalizar o programa
 end_game :-
     nl,
     write('O jogo terminou! Deseja jogar novamente? (Digite "sim". ou "nao".) '),
    	read(Option),
     (Option = "sim" ->  nl,main();
-    (Option = "nao" -> write('Terminando o jogo!');
+    (Option = "nao" -> write('Terminando o jogo!'),halt(0);
     write("Opcao invalida!"),
     nl,
     end_game())).
@@ -111,6 +113,4 @@ end_game :-
 between(Number) :-
 	4 =< Number, 7 >= Number.
                   
-    
-
     
