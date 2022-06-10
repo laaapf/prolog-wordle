@@ -20,7 +20,7 @@ game_setup(Number) :-
 
 %pega a entrada do usuario, verifica se a entrada eh valida, se for, continua o jogo, senao, uma palavra valida deve ser digitada novamente
 play_game(Number, Tries, Random_word, Lines,Random_word_char_list) :-
-  write("Faltam "),write(Tries),write(" chances!"),nl,
+  write("Falta(m) "),write(Tries),write(" chance(s)!"),nl,
   get_guess(_Guess_aux,Guess,Guess_char_list),
   lenght_word(Guess_char_list,Lenght),
   check_if_guess_is_valid(Number,Lenght,Lines,Guess) -> 
