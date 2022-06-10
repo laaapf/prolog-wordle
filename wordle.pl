@@ -30,16 +30,16 @@ play_game(Number, Tries, Random_word, Lines,Random_word_char_list) :-
 check_char_guess_positions(Guess_char_list,_Guess,Random_word,Random_word_char_list) :-
     Guess_char_list = Random_word_char_list -> write('Voce ganhou! A palavra eh "'),write(Random_word),write('"!'),end_game();
     check_correct_positions(Guess_char_list,Random_word_char_list,1,Random_word_char_list,Chars_left),
-    check_wrong_positions(Guess_char_list,Random_word_char_list,Random_word_char_list,1,Chars_left).
+    check_wrong_positions(Guess_char_list,Random_word_char_list,1,Chars_left).
 
-check_wrong_positions([],[],_Random_word_char_list,_Pos,_Chars_left):- !.
-check_wrong_positions([HG|TG],[HR|TR],Random_word_char_list,Pos,Chars_left):-
+check_wrong_positions([],[],_Pos,_Chars_left):- !.
+check_wrong_positions([HG|TG],[HR|TR],Pos,Chars_left):-
     HG \== HR -> (member(HG,Chars_left) -> (subtract(Chars_left,[HG],Result),
     nl,write('A letra "'),write(HG),write('" na posicao '),write(Pos),write(' existe na palavra mas esta na posicao errada '),
-    add_number(Pos,P),check_wrong_positions(TG,TR,Random_word_char_list,P,Result));
+    add_number(Pos,P),check_wrong_positions(TG,TR,P,Result));
     nl,write('A letra "'),write(HG),write('" na posicao '),write(Pos),write(' nao esta na palavra '),
-    add_number(Pos,P),check_wrong_positions(TG,TR,Random_word_char_list,P,Chars_left));
-    add_number(Pos,P),check_wrong_positions(TG,TR,Random_word_char_list,P,Chars_left).
+    add_number(Pos,P),check_wrong_positions(TG,TR,P,Chars_left));
+    add_number(Pos,P),check_wrong_positions(TG,TR,P,Chars_left).
                                                                      
     
 check_correct_positions([],[],_Pos,Aux_list,Chars_left):- append([],Aux_list,Chars_left).
@@ -110,7 +110,7 @@ end_game :-
     write('O jogo terminou! Deseja jogar novamente? (Digite "sim". ou "nao".) '),
    	read(Option),
     (Option = "sim" ->  nl,main();
-    (Option = "nao" -> write('Terminando o jogo!'),fail;
+    (Option = "nao" -> write('Terminando o jogo!'),halt(0);
     write("Opcao invalida!"),
     nl,
     end_game())).
