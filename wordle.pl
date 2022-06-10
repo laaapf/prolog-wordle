@@ -13,11 +13,10 @@ read_number(Number) :-
 
 %setup para iniciar o jogo
 game_setup(Number) :-
-  	get_random_word(Number,Lines, Random_word_aux),
-    downcase_atom(Random_word_aux,Random_word),
-    atom_chars(Random_word, Random_word_char_list),nl,
-    write(Random_word),nl,
-    play_game(Number, 6, Random_word, Lines,Random_word_char_list).
+  	get_random_word(Number,Lines, Random_word_aux), %resgatando palavra aleatoria
+    downcase_atom(Random_word_aux,Random_word), %colocando palavra aleatoria em lower case
+    atom_chars(Random_word, Random_word_char_list),nl, %criando uma lista de caracteres da palavra aleatoria
+    play_game(Number, 6, Random_word, Lines,Random_word_char_list). %comecando jogo
 
 %pega a entrada do usuario, verifica se a entrada eh valida, se for, continua o jogo, senao, uma palavra valida deve ser digitada novamente
 play_game(Number, Tries, Random_word, Lines,Random_word_char_list) :-
@@ -38,8 +37,8 @@ check_char_guess_positions(Guess_char_list,_Guess,Random_word,Random_word_char_l
 check_wrong_positions([],[],_Random_word_char_list,_Pos,_Chars_left):- !.
 check_wrong_positions([HG|TG],[HR|TR],Random_word_char_list,Pos,Chars_left):-
     HG \== HR -> (member(HG,Chars_left) -> (remove_from_list(HG,Chars_left,Result), %percorremos a palavra aleatoria e o palpite do usuario ao mesmo tempo,
-    %verificamos se o head de cada palavra eh diferente, se for, verificamos se a letra atual do palpite pertence a lista de letras da palavra aleatoria que faltam ser
-    %verificadas, se fizer parte, subtraimos a primeira ocorrencia dessa letra na lista de caracteres que faltam ser verificados.
+    %verificamos se a letra atual de cada palavra eh diferente, se for, verificamos se a letra atual do palpite pertence a lista de letras da palavra aleatoria que faltam ser
+    %verificadas da palavra aleatoria, se fizer parte, subtraimos a primeira ocorrencia dessa letra nessa lista de caracteres
     %caso a letra nao faca parte dessa lista de caracteres, a letra nao faz parte da palavra
     nl,ansi_format([bold,fg(yellow)],'A letra "~w" na posicao ~w existe na palavra mas esta na posicao errada',[HG,Pos]),
     add_number(Pos,P),check_wrong_positions(TG,TR,Random_word_char_list,P,Result));
