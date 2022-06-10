@@ -16,16 +16,19 @@ game_setup(Number) :-
   	get_random_word(Number,Lines, Random_word_aux), %resgatando palavra aleatoria
     downcase_atom(Random_word_aux,Random_word), %colocando palavra aleatoria em lower case
     atom_chars(Random_word, Random_word_char_list),nl, %criando uma lista de caracteres da palavra aleatoria
-    play_game(Number, 6, Random_word, Lines,Random_word_char_list). %comecando jogo
+    play_game(Number, 6, Random_word, Lines,Random_word_char_list,[]). %comecando jogo
 
 %pega a entrada do usuario, verifica se a entrada eh valida, se for, continua o jogo, senao, uma palavra valida deve ser digitada novamente
-play_game(Number, Tries, Random_word, Lines,Random_word_char_list) :-
+play_game(Number, Tries, Random_word, Lines,Random_word_char_list,Aux_list) :-
   write("Falta(m) "),write(Tries),write(" chance(s)!"),nl,
   get_guess(_Guess_aux,Guess,Guess_char_list),
   lenght_word(Guess_char_list,Lenght),
-  check_if_guess_is_valid(Number,Lenght,Lines,Guess) -> 
-  check_char_guess_positions(Guess_char_list,Guess,Random_word,Random_word_char_list),Tries_left is Tries - 1,  (Tries_left is 0 -> end_game();nl, play_game(Number, Tries_left, Random_word, Lines,Random_word_char_list));
-  write("A palavra que foi digitada eh invalida ou seu tamanho nao corresponde com o tamanho da palavra aleatoria que esta jogando!"),nl,play_game(Number,Tries,Random_word,Lines,Random_word_char_list).
+  (check_if_guess_is_valid(Number,Lenght,Lines,Guess,Aux_list),append([Guess],Aux_list,Guessed_words)) -> 
+  check_char_guess_positions(Guess_char_list,Guess,Random_word,Random_word_char_list),Tries_left is Tries - 1,  
+  (Tries_left is 0 -> nl,nl,ansi_format([bold,fg(red)],'Voce perdeu! A palavra eh "~w"!',[Random_word]),end_game(); %se a palavra digitada eh valida,subtrai 1 do numero de tentativas restantes
+  nl, play_game(Number, Tries_left, Random_word, Lines,Random_word_char_list,Guessed_words));                                     %se o numero de tentativas for 0, a pessoa perdeu 
+  write("A palavra que foi digitada eh invalida, ou ja foi digitada como palpite, ou seu tamanho nao corresponde com o tamanho da palavra aleatoria que esta jogando!"),
+  nl,play_game(Number,Tries,Random_word,Lines,Random_word_char_list,Aux_list).
 
 %verificando se o usuario acertou a palavra, se nao acertou, fazemos a verificacao dos caracteres
 check_char_guess_positions(Guess_char_list,_Guess,Random_word,Random_word_char_list) :-
@@ -94,8 +97,9 @@ get_all_words(Number,Lines,N) :-
     nl.
 
 %verificando se a palavra eh valida
-check_if_guess_is_valid(Number,Lenght,Lines,Guess):-
+check_if_guess_is_valid(Number,Lenght,Lines,Guess,Guessed_words):-
     Number = Lenght,   %verificando se o tamanho da palavra corresponde ao tamanho que esta sendo jogado
+    \+ member(Guess,Guessed_words), %verificando se o palpite ja foi digitado anteriormente
     check_if_guess_exists(Lines,Guess).
 
 %verifica se a palavra existe no arquivo de palavras
