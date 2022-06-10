@@ -27,7 +27,7 @@ play_game(Number, Tries, Random_word, Lines,Random_word_char_list,Aux_list) :-
   check_char_guess_positions(Guess_char_list,Guess,Random_word,Random_word_char_list),Tries_left is Tries - 1,  
   (Tries_left is 0 -> nl,nl,ansi_format([bold,fg(red)],'Voce perdeu! A palavra eh "~w"!',[Random_word]),end_game(); %se a palavra digitada eh valida,subtrai 1 do numero de tentativas restantes
   nl, play_game(Number, Tries_left, Random_word, Lines,Random_word_char_list,Guessed_words));                                     %se o numero de tentativas for 0, a pessoa perdeu 
-  write("A palavra que foi digitada eh invalida, ou ja foi digitada como palpite, ou seu tamanho nao corresponde com o tamanho da palavra aleatoria que esta jogando!"),
+  write("A palavra que foi digitada eh invalida (nao pertence a lista de palavras validas), ou ja foi digitada como palpite, ou seu tamanho nao corresponde com o tamanho da palavra aleatoria que esta jogando!"),
   nl,play_game(Number,Tries,Random_word,Lines,Random_word_char_list,Aux_list).
 
 %verificando se o usuario acertou a palavra, se nao acertou, fazemos a verificacao dos caracteres
