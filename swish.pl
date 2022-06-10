@@ -17,8 +17,8 @@ read_number(Number) :-
 %setup para iniciar o jogo
 game_setup(Number) :-
     %get_random_word(Number,Lines, Random_word_aux),
-    Random_word = "bata",
-    Lines = ["teta","bata","bola"],
+    Random_word = "bato",
+    Lines = ["teta","bota","bata","bola","bato","bala","acai"],
     atom_chars(Random_word, Random_word_char_list),nl,
     write(Random_word),nl,
     play_game(Number, 6, Random_word, Lines,Random_word_char_list).
@@ -32,30 +32,39 @@ play_game(Number, Tries, Random_word, Lines,Random_word_char_list) :-
   check_char_guess_positions(Guess_char_list,Guess,Random_word,Random_word_char_list),Tries_left is Tries - 1,  (Tries_left is 0 -> end_game();nl, play_game(Number, Tries_left, Random_word, Lines,Random_word_char_list));
   write("A palavra que foi digitada eh invalida ou seu tamanho nao corresponde com o tamanho da palavra aleatoria que esta jogando!"),nl,play_game(Number,Tries,Random_word,Lines,Random_word_char_list).
 
-%pega a entrada do usuario, verifica se a entrada eh valida, se for, continua o jogo, senao, uma palavra valida deve ser digitada novamente
-play_game(Number, Tries, Random_word, Lines,Random_word_char_list) :-
-  write("Faltam "),write(Tries),write(" chances!"),nl,
-  get_guess(_Guess_aux,Guess,Guess_char_list),
-  lenght_word(Guess_char_list,Lenght),
-  check_if_guess_is_valid(Number,Lenght,Lines,Guess) -> 
-  check_char_guess_positions(Guess_char_list,Guess,Random_word,Random_word_char_list),Tries_left is Tries - 1,  (Tries_left is 0 -> end_game();nl, play_game(Number, Tries_left, Random_word, Lines,Random_word_char_list));
-  write("A palavra que foi digitada eh invalida ou seu tamanho nao corresponde com o tamanho da palavra aleatoria que esta jogando!"),nl,play_game(Number,Tries,Random_word,Lines,Random_word_char_list).
-
 check_char_guess_positions(Guess_char_list,_Guess,Random_word,Random_word_char_list) :-
     Guess_char_list = Random_word_char_list -> write('Voce ganhou! A palavra eh "'),write(Random_word),write('"!'),end_game();
     check_correct_positions(Guess_char_list,Random_word_char_list,1),
-    letters_right_positions(Guess_char_list,Random_word_char_list,1,Chars_left),
-    check_wrong_positions(Guess_char_list,Random_word_char_list,Chars_left),
-    write(Chars_left).
+    check_wrong_letters(Guess_char_list,Random_word_char_list,1),
+    check_wrong_positions(Guess_char_list,Random_word_char_list,Random_word_char_list,1,[]).
 
-letters_right_positions([],[],_Pos,Chars_left):-!.
-letters_right_positions([HG|TG],[HR|TR],Pos,Chars_left):-
-    HG = HR -> append(Chars_left,[Pos],List),add_number(Pos,P),nl,write(List),letters_right_positions(TG,TR,P,List);
-    nl,write(List),add_number(Pos,P),letters_right_positions(TG,TR,P,List).
+check_wrong_letters([],_Random_word_char_list,_Pos):-!.
+check_wrong_letters([HG|TG],Random_word_char_list,Pos):-
+    member(HG,Random_word_char_list) -> (add_number(Pos,P),check_wrong_letters(TG,Random_word_char_list,P));
+    nl,write('A letra "'),write(HG),write('" na posicao '),write(Pos),write('" nao esta na palavra '),
+    add_number(Pos,P),
+    check_wrong_letters(TG,Random_word_char_list,P).
 
-check_wrong_positions(Guess_char_list,Random_word_char_list,Chars_left):-
-    true.
+check_wrong_positions([],[],Random_word_char_list,Pos,Aux_list):- !.
+check_wrong_positions([HG|TG],[HR|TR],Random_word_char_list,Pos,Aux_list):-
+    HG \== HR -> ((member(HG,Random_word_char_list),append(Aux_list,[HG],List),subtract(List,[HG],Result)) -> (append(List,[HG],Aux_list),
+    nl,write('A letra "'),write(HG),write('" na posicao '),write(Pos),write(' existe na palavra mas esta na posicao errada '),
+    add_number(Pos,P),check_wrong_positions(TG,TR,Random_word_char_list,P,Aux_List));
+    add_number(Pos,P),check_wrong_positions(TG,TR,Random_word_char_list,P,Aux_list));
+    add_number(Pos,P),check_wrong_positions(TG,TR,Random_word_char_list,P,Aux_list).
 
+
+check_wrong_positions([],[],Random_word_char_list,Pos,Aux_list):- !.
+check_wrong_positions([HG|TG],[HR|TR],Random_word_char_list,Pos,Aux_list):-
+    HG \== HR -> (member(HG,Random_word_char_list) -> (\+member(HG,Aux_list) ->  ((append(Aux_list,[HG],List),
+    nl,write('A letra "'),write(HG),write('" na posicao '),write(Pos),write(' existe na palavra mas esta na posicao errada '),
+    add_number(Pos,P),check_wrong_positions(TG,TR,Random_word_char_list,P,List)));
+    nl,write('A letra "'),write(HG),write('" na posicao '),write(Pos),write(' existe na palavra mas esta na posicao errada '),
+    add_number(Pos,P),check_wrong_positions(TG,TR,Random_word_char_list,P,Aux_List));
+    add_number(Pos,P),check_wrong_positions(TG,TR,Random_word_char_list,P,Aux_list));
+    add_number(Pos,P),check_wrong_positions(TG,TR,Random_word_char_list,P,Aux_list).
+    
+    
 check_correct_positions([],[],_Pos):-!.
 check_correct_positions([HG|TG],[HR|TR],Pos) :-
     HG = HR -> (nl,write('A letra "'),write(HG),write('" esta correta na posicao '),write(Pos),
@@ -131,6 +140,8 @@ end_game :-
 %checando se o tamanho da palavra eh valido
 between(Number) :-
 	4 =< Number, 7 >= Number.
+
+
                   
     
 
